@@ -12,6 +12,8 @@
 #include "imgui_impl_opengl3.h"
 #include "style.h"
 #include <stdio.h>
+#include <string>
+#include <iostream>
 #define GL_SILENCE_DEPRECATION
 #if defined(IMGUI_IMPL_OPENGL_ES2)
 #include <GLES2/gl2.h>
@@ -33,6 +35,43 @@
 static void glfw_error_callback(int error, const char* description)
 {
     fprintf(stderr, "GLFW Error %d: %s\n", error, description);
+}
+
+// predefined login credentials
+const std::string username = "admin";
+const std::string password = "password";
+
+// main function for login
+void RenderLoginForm(){
+    static char username_input[64] = ""; // buffer for username input
+    static char password_input[64] = ""; // buffer for password input
+    static bool login_success = false;
+    static bool login_failed = false;
+
+    ImGui::Begin("Simple Login Form");
+
+    ImGui::InputText("Username", username_input, IM_ARRAYSIZE(username_input));
+    ImGui::InputText("Password", password_input, IM_ARRAYSIZE(password_input), ImGuiInputTextFlags_Password);
+
+    if(ImGui::Button("Login")){
+        if(username_input == username && password_input == password){
+            login_success = true;
+            login_failed = false;
+        }
+        else{
+            login_success = false;
+            login_failed = true;
+        }
+    }
+    if(login_success){
+        ImGui::TextColored(ImVec4(0,1,0,1), "Login Successful!");
+
+    }
+    else if(login_failed){
+                ImGui::TextColored(ImVec4(1,0,0,1), "Login failed!");
+    }
+
+    ImGui::End();
 }
 
 // Main code
@@ -134,8 +173,14 @@ int main(int, char**)
     //ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf");
     //IM_ASSERT(font != nullptr);
 
-    CreateMoonlightStyle();
+    ImFont* customFont = io.Fonts->AddFontFromFileTTF("../fonts/JetBrainsMono-Variable.ttf", 16.0f);
 
+    if(customFont == nullptr){
+        std::cerr << "Failed to load font!" << "\n";
+    }
+    
+    CreateMoonlightStyle();
+    CreateDarkStyle();
 
     // Our state
     bool show_demo_window = true;
@@ -206,6 +251,7 @@ int main(int, char**)
             ImGui::End();
         }
 
+        RenderLoginForm();
         // Rendering
         ImGui::Render();
         int display_w, display_h;
